@@ -118,21 +118,21 @@
       </li>
       <!-- 角色管理 -->
       <li class="menu-item">
-        <a href="#" class="menu-link">
-          <i>👤</i>角色管理
+        <a href="../views/Admin/studentManagement.php" target="mainFrame" class="menu-link">
+          <i>👤</i>学生管理
         </a>
       </li>
 
       <!-- 校园墙管理 -->
       <li class="menu-item">
-        <a href="#" class="menu-link" onclick="toggleSubMenu(this)">
+        <a href="#" class="menu-link" target="mainFrame" onclick="toggleSubMenu(this)">
           <i>📋</i>校园墙管理
           <span style="margin-left:auto">▶</span>
         </a>
         <ul class="sub-menu">
           <li><a href="../views/Admin/admin.php" target="mainFrame" class="menu-link">帖子审核</a></li>
-          <li><a href="#" class="menu-link">内容管理</a></li>
-          <li><a href="#" class="menu-link">评论管理</a></li>
+          <li><a href="#" class="menu-link" target="mainFrame">内容管理</a></li>
+          <li><a href="#" class="menu-link" target="mainFrame">评论管理</a></li>
         </ul>
       </li>
 
