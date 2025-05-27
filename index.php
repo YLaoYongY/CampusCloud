@@ -123,10 +123,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         /* 登录容器样式 */
         .auth-container {
             background: rgba(255, 255, 255, 0.95);
-            padding: 40px;
+            padding: 50px;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            width: 400px;
+            width: 450px;
             transform-style: preserve-3d;
             transition: all 0.3s;
         }
@@ -139,7 +139,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         .tab {
             flex: 1;
-            padding: 15px;
+            padding: 20px;
+            font-size: 18px;
+
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
@@ -159,10 +161,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         .input-group input {
             width: 100%;
-            padding: 12px;
+            padding: 15px;
             border: 2px solid #ddd;
             border-radius: 8px;
             transition: all 0.3s;
+            font-size: 16px;
         }
 
         .input-group input:focus {
@@ -173,12 +176,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         /* 按钮样式 */
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 15px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: bold;
+            font-size: 16px;
         }
 
         .login-btn {
@@ -207,6 +211,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #666;
             text-decoration: none;
             transition: color 0.3s;
+            font-size: 14px;
         }
 
         .forgot-password a:hover {
@@ -231,6 +236,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         .success-message {
             color: #ddd;
+        }
+
+        .global-alert,
+        .success-message {
+            font-size: 14px;
+            padding: 20px 35px;
+            /* 原15px 30px */
         }
     </style>
 </head>
