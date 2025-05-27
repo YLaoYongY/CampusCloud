@@ -70,22 +70,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     // 登录处理
     elseif (isset($_POST['login'])) {
-        $username = trim($_POST['username']);
-        $password = $_POST['password'];
-
-        $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
-        $stmt->execute([$username]);
-        if ($stmt->rowCount() == 1) {
-            $user = $stmt->fetch();
-            if (password_verify($password, $user['password'])) {
-                session_start();
-                $_SESSION['user'] = $user['username'];
-                header("Location: home.php");
-            } else {
-                $error = "密码错误！";
-            }
+        if (empty($_POST['password'])) {
+            $error = "密码不能为空";
         } else {
-            $error = "用户不存在！";
+            $account = trim($_POST['username']);
+            $password = $_POST['password'];
+
+            $stmt = $conn->prepare("SELECT * FROM users WHERE username = ? OR student_id = ?");
+            $stmt->execute([$account, $account]);
+
+            if ($stmt->rowCount() == 1) {
+                $user = $stmt->fetch();
+                // 明文密码比对
+                if ($password === $user['raw_password']) {
+                    session_start();
+                    $_SESSION['user'] = $user['username'];
+                    header("Location: home.php");
+                } else {
+                    $error = "密码错误！";
+                }
+            } else {
+                $error = "用户不存在！";
+            }
         }
     }
 }
@@ -254,10 +260,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <!-- 登录表单 -->
-        <form id="loginForm" method="POST" style="display: block;">
+        <form id="loginForm" action="./layout/frame.php" method="POST" style="display: block;">
             <div class="input-group">
-                <input type="text" name="username" placeholder="用户名" title="请输入用户名" minlength="1"
-                    maxlength="7" required>
+                <input type="text"
+                    name="username"
+                    placeholder="用户名/学号"
+                    title="请输入用户名或11位学号"
+                    minlength="1"
+                    maxlength="11"
+                    required>
             </div>
             <div class="input-group">
                 <input type="password"
