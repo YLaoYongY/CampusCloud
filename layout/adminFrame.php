@@ -14,7 +14,7 @@
   </style>
 </head>
 <frameset rows="*" cols="*" frameborder="no" border="0" framespacing="0">
-  <frameset rows="*" cols="240,*" framespacing="0" frameborder="no" border="0">
+  <frameset rows="*" cols="200,*" framespacing="0" frameborder="no" border="0">
     <frame src="./left.php" name="leftFrame" scrolling="No" noresize="noresize" id="leftFrame" title="leftFrame" />
     <frame src="../views/Admin/managementPlatform.php" name="mainFrame" id="mainFrame" title="mainFrame" />
   </frameset>

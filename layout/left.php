@@ -20,7 +20,7 @@
     }
 
     .admin-sidebar {
-      width: 240px;
+      width: 200px;
       height: 100vh;
       background: var(--primary-color);
       position: fixed;
@@ -29,28 +29,32 @@
 
     .sidebar-logo {
       display: flex;
-      padding: 20px;
+      flex-direction: column;
+      /* 改为垂直排列 */
+      align-items: center;
+      /* 水平居中 */
+      padding: 20px 0;
+      /* 调整上下间距 */
       text-align: center;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .sidebar-logo img {
       width: 60px;
-      /* 缩小logo尺寸 */
       height: 60px;
       border-radius: 50%;
-      /* 改为圆形 */
-      transition: transform 0.3s;
-      margin-right: 15px;
-      /* 添加图片与文字间距 */
+      margin: 0 0 10px 0;
+      /* 下边距10px */
     }
+
 
     .platform-name {
       color: #ecf0f1;
       font-size: 16px;
-      line-height: 60px;
       font-weight: bold;
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      line-height: 1.2;
+      /* 恢复默认行高 */
     }
 
     .nav-menu {

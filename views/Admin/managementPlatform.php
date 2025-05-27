@@ -15,6 +15,8 @@ require $_SERVER['DOCUMENT_ROOT'] . '/config.php';
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 20px;
       padding: 20px;
+      margin-top: 20px;
+
     }
 
     .stat-card {
@@ -48,10 +50,70 @@ require $_SERVER['DOCUMENT_ROOT'] . '/config.php';
       font-weight: bold;
       color: #333;
     }
+
+    .user-status-bar {
+      display: flex;
+      justify-content: flex-end;
+      padding: 15px 30px;
+      background: #f8f9fa;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .avatar-container {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 12px 20px;
+      color: #333;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .dropdown-menu a:hover {
+      background: #f8f9fa;
+    }
+
+    .avatar-container:hover .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(5px);
+    }
   </style>
 </head>
 
 <body>
+  <div class="user-status-bar">
+    <div class="avatar-container">
+      <!-- 使用当前登录用户头像 -->
+      <img src="../../img/logo.jpeg" class="avatar" alt="用户头像">
+      <div class="dropdown-menu">
+        <a href="javascript:void(0)" onclick="changeAvatar()">修改头像</a>
+        <a href="../../index.php" target="_top">退出登录</a>
+      </div>
+    </div>
+  </div>
   <div class="stats-container">
     <!-- 待审核帖子 -->
     <div class="stat-card">
@@ -124,6 +186,12 @@ require $_SERVER['DOCUMENT_ROOT'] . '/config.php';
     return $stmt->fetchColumn();
   }
   ?>
+  <script>
+    function changeAvatar() {
+      // 实现修改头像逻辑
+      alert('打开头像修改界面');
+    }
+  </script>
 </body>
 
 </html>
