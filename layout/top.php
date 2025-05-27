@@ -87,12 +87,12 @@
 <body>
   <nav>
     <div class="nav-links">
-      <a href="../views/home.php" target="mainFrame">首页</a>
-      <a href="../views/campusForum.php" target="mainFrame">校园墙</a>
-      <a href="../views/canteen.php" target="mainFrame">食堂推荐</a>
-      <a href="../views/secondHand.php" target="mainFrame">出闲置</a>
-      <a href="../views/activity.php" target="mainFrame">活动</a>
-      <a href="../views/partTime.php" target="mainFrame">兼职</a>
+      <a href="../views/RegularUser/home.php" target="mainFrame">首页</a>
+      <a href="../views/RegularUser/campusForum.php" target="mainFrame">校园墙</a>
+      <a href="../views/RegularUser/canteen.php" target="mainFrame">食堂推荐</a>
+      <a href="../views/RegularUser/secondHand.php" target="mainFrame">出闲置</a>
+      <a href="../views/RegularUser/activity.php" target="mainFrame">活动</a>
+      <a href="../views/RegularUser/partTime.php" target="mainFrame">兼职</a>
     </div>
     <div class="profile">
       <a href="./profile.php">

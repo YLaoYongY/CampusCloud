@@ -18,7 +18,7 @@
   <frame src="./top.php" name="topFrame" scrolling="No" noresize="noresize" id="topFrame" title="topFrame" />
   <frameset rows="*" cols="*" framespacing="0" frameborder="no" border="0">
     <!-- 这里src写的是主框架的地址 -->
-    <frame src="../views/home.php" name="mainFrame" id="mainFrame" title="mainFrame" />
+    <frame src="../views/RegularUser/home.php" name="mainFrame" id="mainFrame" title="mainFrame" />
   </frameset>
 </frameset>
 <noframes>

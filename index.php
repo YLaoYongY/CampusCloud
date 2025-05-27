@@ -28,8 +28,8 @@ try {
         student_id BIGINT(11) UNSIGNED UNIQUE NOT NULL, 
         raw_password VARCHAR(20) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
-        is_admin BOOLEAN DEFAULT 0 NOT NULL
-
+        is_admin BOOLEAN DEFAULT 0 NOT NULL,
+        id_card VARCHAR(6) NOT NULL
     )
     ");
 } catch (PDOException $e) {
@@ -52,6 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (!preg_match('/^\d{11}$/', $student_id)) {
             $error = "学号必须是11位数字";
         }
+
         // 验证密码长度
         elseif (strlen($raw_password) > 20) {
             $error = "密码长度不能超过20个字符";
@@ -67,6 +68,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt = $conn->prepare("INSERT INTO users (username, student_id, raw_password) VALUES (?, ?, ?)");
                 $stmt->execute([$username, $student_id, $raw_password]);
                 $success = "注册成功！";
+            }
+        }
+    } elseif (isset($_POST['reset_password'])) {
+        $student_id = trim($_POST['student_id']);
+        $id_card = trim($_POST['id_card']);
+        $new_password = $_POST['new_password'];
+
+        // 验证学号格式
+        if (!preg_match('/^\d{11}$/', $student_id)) {
+            $error = "学号格式不正确";
+        }
+        // 验证身份证后6位
+        elseif (!preg_match('/^\d{6}$/', $id_card)) {
+            $error = "请输入身份证后6位";
+        }
+        // 验证新密码长度
+        elseif (strlen($new_password) < 6 || strlen($new_password) > 20) {
+            $error = "密码长度需为6-20位";
+        } else {
+            // 验证学号和身份证信息
+            $stmt = $conn->prepare("SELECT id FROM users WHERE student_id = ? AND id_card = ?");
+            $stmt->execute([$student_id, $id_card]);
+
+            if ($stmt->rowCount() == 1) {
+                // 更新密码
+                $stmt = $conn->prepare("UPDATE users SET raw_password = ? WHERE student_id = ?");
+                $stmt->execute([$new_password, $student_id]);
+                $success = "密码重置成功！";
+            } else {
+                $error = "学号与身份证信息不匹配";
             }
         }
     }
@@ -92,7 +123,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     // 修改跳转逻辑
                     if ($user['is_admin'] == 1) {
-                        header("Location: ./views/admin.php");
+                        header("Location: ./layout/adminFrame.php");
                     } else {
                         header("Location: ./layout/frame.php");
                     }
@@ -306,7 +337,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <button type="submit" name="login" class="btn login-btn">立即登录</button>
             <div class="forgot-password">
-                <a href="forgot_password.php">忘记密码？</a>
+                <a href="#" onclick="switchTab('reset')">忘记密码？</a>
             </div>
         </form>
 
@@ -345,6 +376,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
                 <button type="submit" name="register" class="btn register-btn">立即注册</button>
         </form>
+        <form id="resetPasswordForm" method="POST" style="display: none;">
+            <div class="input-group">
+                <input type="text"
+                    name="student_id"
+                    placeholder="输入学号"
+                    pattern="\d{11}"
+                    title="请输入11位数字学号"
+                    required>
+            </div>
+            <div class="input-group">
+                <input type="text"
+                    name="id_card"
+                    placeholder="身份证后6位"
+                    pattern="\d{6}"
+                    title="请输入身份证号码后6位"
+                    required>
+            </div>
+            <div class="input-group">
+                <input type="password"
+                    name="new_password"
+                    placeholder="新密码"
+                    minlength="6"
+                    maxlength="20"
+                    required>
+            </div>
+            <button type="submit" name="reset_password" class="btn login-btn">重置密码</button>
+            <div class="forgot-password" style="margin-top:15px">
+                <a href="#" onclick="switchTab('login')">返回登录</a>
+            </div>
+        </form>
+
+
     </div>
 
     <script>
@@ -379,6 +442,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 alert.style.transform = 'translate(-50%, -100%)';
             }, 2000);
         });
+        // 修改选项卡切换函数
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const forms = document.querySelectorAll('form');
+
+            // 隐藏所有选项卡和表单
+            tabs.forEach(tab => tab.classList.remove('active'));
+            forms.forEach(form => form.style.display = 'none');
+
+            // 显示指定内容
+            if (tabName === 'reset') {
+                document.querySelector('#resetPasswordForm').style.display = 'block';
+            } else {
+                document.querySelector(`#${tabName}Form`).style.display = 'block';
+                document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            }
+        }
     </script>
 </body>
 
