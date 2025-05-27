@@ -1,40 +1,6 @@
 <?php
-
-// 数据库配置
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "campus";
-
-// 创建数据库连接
-try {
-    // 第一步：连接到MySQL服务器
-    $conn = new PDO("mysql:host=$servername", $username, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    // 第二步：创建数据库（如果不存在）
-    $conn->exec("CREATE DATABASE IF NOT EXISTS $dbname");
-
-    // 第三步：连接到指定数据库
-    $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    // 第四步：创建数据表
-    $conn->exec("
-    CREATE TABLE IF NOT EXISTS users (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        username VARCHAR(7) UNIQUE NOT NULL,
-        -- 学号唯一且不为空     且没有符号属性  int类型长度只有10位 需要bigint类型
-        student_id BIGINT(11) UNSIGNED UNIQUE NOT NULL, 
-        raw_password VARCHAR(20) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
-        is_admin BOOLEAN DEFAULT 0 NOT NULL,
-        id_card VARCHAR(6) NOT NULL
-    )
-    ");
-} catch (PDOException $e) {
-    die("连接失败: " . $e->getMessage());
-}
+require_once $_SERVER['DOCUMENT_ROOT'] . './config/init.php';
+$conn = initializeDatabase();
 
 
 // 处理表单提交

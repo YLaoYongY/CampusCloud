@@ -1,6 +1,6 @@
 <?php
 // 移除顶部的数据库连接代码，直接引入配置文件
-require $_SERVER['DOCUMENT_ROOT'] . '/config.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/config/config.php';
 ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -154,7 +154,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/config.php';
 
   <?php
   // 数据库连接
-  require '../../config.php';
+
 
   function getPendingPosts()
   {
