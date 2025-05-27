@@ -27,7 +27,9 @@ try {
         -- 学号唯一且不为空     且没有符号属性  int类型长度只有10位 需要bigint类型
         student_id BIGINT(11) UNSIGNED UNIQUE NOT NULL, 
         raw_password VARCHAR(20) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+        is_admin BOOLEAN DEFAULT 0 NOT NULL
+
     )
     ");
 } catch (PDOException $e) {
@@ -77,15 +79,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $password = $_POST['password'];
 
             $stmt = $conn->prepare("SELECT * FROM users WHERE username = ? OR student_id = ?");
-            $stmt->execute([$account, $account]);
+            $stmt->execute([$account, (int)$account]);
 
-            if ($stmt->rowCount() == 1) {
+            if ($stmt->rowCount() >= 1) {
                 $user = $stmt->fetch();
                 // 明文密码比对
                 if ($password === $user['raw_password']) {
                     session_start();
                     $_SESSION['user'] = $user['username'];
-                    header("Location: home.php");
+                    // 添加管理员身份判断
+                    $_SESSION['is_admin'] = $user['is_admin'];
+
+                    // 修改跳转逻辑
+                    if ($user['is_admin'] == 1) {
+                        header("Location: ./views/admin.php");
+                    } else {
+                        header("Location: ./layout/frame.php");
+                    }
                 } else {
                     $error = "密码错误！";
                 }
@@ -272,7 +282,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <!-- 登录表单 -->
-        <form id="loginForm" action="./layout/frame.php" method="POST" style="display: block;">
+        <form id="loginForm" method="POST" style="display: block;">
             <div class="input-group">
                 <input type="text"
                     name="username"
@@ -317,7 +327,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     placeholder="输入学号"
                     pattern="\d{11}"
                     title="请输入11位数字学号"
-
                     required>
             </div>
             <div class="input-group">
