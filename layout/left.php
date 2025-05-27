@@ -107,6 +107,11 @@
     </div>
 
     <ul class="nav-menu">
+      <li class="menu-item">
+        <a href="../views/Admin/managementPlatform.php" target="mainFrame" class="menu-link">
+          <i>👤</i>首页
+        </a>
+      </li>
       <!-- 角色管理 -->
       <li class="menu-item">
         <a href="#" class="menu-link">
@@ -121,7 +126,7 @@
           <span style="margin-left:auto">▶</span>
         </a>
         <ul class="sub-menu">
-          <li><a href="#" class="menu-link">帖子审核</a></li>
+          <li><a href="../views/Admin/admin.php" target="mainFrame" class="menu-link">帖子审核</a></li>
           <li><a href="#" class="menu-link">内容管理</a></li>
           <li><a href="#" class="menu-link">评论管理</a></li>
         </ul>
