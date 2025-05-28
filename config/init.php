@@ -23,9 +23,9 @@ function initializeDatabase()
     $conn->exec("
         CREATE TABLE IF NOT EXISTS users (
             id INT PRIMARY KEY AUTO_INCREMENT,
-            username VARCHAR(7) UNIQUE NOT NULL,
+            username VARCHAR(7) UNIQUE,
             student_id BIGINT(11) UNSIGNED UNIQUE NOT NULL,
-            raw_password VARCHAR(20) NOT NULL,
+            raw_password VARCHAR(20),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             is_admin BOOLEAN DEFAULT 0 NOT NULL,
             id_card VARCHAR(6) NOT NULL
