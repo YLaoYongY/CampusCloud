@@ -31,11 +31,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import'])) {
         $errorLog[] = "存在空字段: " . implode(",", $data);
         continue;
       }
+      if (strlen($id_card) !== 18) {
+        $errorLog[] = "身份证号长度错误: 用户名 {$username} 身份证号 {$id_card}";
+        continue;
+      }
+
+
 
       // 生成密码：取身份证号后6位
       $password = strlen($id_card) >= 6 ? substr($id_card, -6) : '';
       if (empty($password)) {
         $errorLog[] = "身份证号长度不足: {$username}";
+        continue;
+      }
+      $checkStmt = $conn->prepare("SELECT id FROM users WHERE student_id = ?");
+      $checkStmt->execute([$student_id]);
+      if ($checkStmt->fetch()) {
+        $errorLog[] = "学号已存在: {$student_id}（用户名 {$username}）";
         continue;
       }
 
@@ -51,7 +63,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import'])) {
         ]);
         $successCount++;
       } catch (PDOException $e) {
-        $errorLog[] = "插入失败: {$username} - " . $e->getMessage();
+        // 修改错误提示为学号重复
+        if ($e->errorInfo[1] == 1062) {
+          $errorLog[] = "学号已存在: {$student_id}（用户名 {$username}）";
+        } else {
+          $errorLog[] = "插入失败: {$student_id} - " . $e->getMessage();
+        }
       }
     }
     fclose($handle);
@@ -76,7 +93,7 @@ if (isset($_GET['download_template'])) {
 
   // 示例数据
   $examples = [
-    ['张三', '20230200016', '123456789012'],
+    ['张三', '20230200016', '110101200001011234'],
     ['李四', '20210200066', '340304199901016543'],
     ['王五', '20220200333', '510125200008087890']
   ];
@@ -259,6 +276,16 @@ $students = $stmt->fetchAll();
       color: #a94442;
       border: 1px solid #ebccd1;
     }
+
+    .alert {
+      padding: 15px;
+      margin: 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 1s ease;
+      opacity: 1;
+      visibility: visible;
+    }
   </style>
 </head>
 
@@ -350,8 +377,25 @@ $students = $stmt->fetchAll();
         document.querySelector('.loading').style.display = 'none';
       }, 2000);
     }
-  </script>
+    // 新增加载动画
+    function showLoading() {
+      document.querySelector('.loading').style.display = 'block';
+      setTimeout(() => {
+        document.querySelector('.loading').style.display = 'none';
+      }, 2000);
+    }
 
+    // 新增提示自动隐藏
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+          alert.style.opacity = '0';
+          setTimeout(() => alert.remove(), 1000); // 淡出动画结束后移除元素
+        });
+      }, 10000); // 10秒后开始隐藏
+    });
+  </script>
 </body>
 
 </html>
