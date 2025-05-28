@@ -275,6 +275,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class=" tabs">
             <div class="tab active" onclick="switchTab('login')">登录</div>
             <div class="tab" onclick="switchTab('register')">注册</div>
+            <div class="tab" onclick="switchTab('reset')" style="display:none"></div>
         </div>
 
         <!-- 登录表单 -->
@@ -302,8 +303,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <button type="submit" name="login" class="btn login-btn">立即登录</button>
             <div class="forgot-password">
-                <a href="#" onclick="switchTab('reset')">忘记密码？</a>
+                <a href="#" onclick="switchTab('reset'); return false;">忘记密码？</a>
             </div>
+
         </form>
 
         <!-- 注册表单 -->
@@ -340,6 +342,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
                 <button type="submit" name="register" class="btn register-btn">立即注册</button>
+            </div>
         </form>
         <form id="resetPasswordForm" method="POST" style="display: none;">
             <div class="input-group">
@@ -378,15 +381,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <script>
         // 选项卡切换功能
         function switchTab(tabName) {
-            const tabs = document.querySelectorAll('.tab');
+            const tabsContainer = document.querySelector('.tabs');
             const forms = document.querySelectorAll('form');
 
-            tabs.forEach(tab => tab.classList.remove('active'));
+            // 重置所有状态
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             forms.forEach(form => form.style.display = 'none');
 
-            document.querySelector(`#${tabName}Form`).style.display = 'block';
-            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            if (tabName === 'reset') {
+                document.querySelector('#resetPasswordForm').style.display = 'block';
+                tabsContainer.style.display = 'none'; // 隐藏选项卡容器
+            } else {
+                tabsContainer.style.display = 'flex'; // 显示选项卡容器
+                document.querySelector(`#${tabName}Form`).style.display = 'block';
+                document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            }
         }
+
+
+
         // 在现有脚本中添加功能
         function checkPasswordLength(input) {
             const hint = input.parentElement.querySelector('.length-hint');
