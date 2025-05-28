@@ -28,7 +28,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
 
         $title = $_POST['title'];
         $content = $_POST['content'];
-        $category = $_POST['category'];
+        // 检查 category 是否存在，如果不存在则设置一个默认值
+        $category = isset($_POST['category']) ? $_POST['category'] : '默认分类';
         $user_id = $_SESSION['user_id'];
         $is_anonymous = isset($_POST['is_anonymous']) ? 1 : 0;
 
@@ -289,7 +290,7 @@ $new_posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <h3 class="text-lg font-semibold mb-2"><?= htmlspecialchars($post['title']) ?></h3>
               <p class="text-gray-600 mb-3 text-sm line-clamp-2"><?= htmlspecialchars(substr($post['content'], 0, 100)) ?>...</p>
               <div class="flex items-center justify-between">
-                <span class="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full"><?= htmlspecialchars($post['category']) ?: '综合' ?></span>
+
                 <button class="text-primary text-xs font-medium hover:underline">阅读全文</button>
               </div>
             </div>
@@ -335,11 +336,14 @@ $new_posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <p class="text-gray-500 text-xs"><?= date('Y-m-d H:i', strtotime($post['created_at'])) ?></p>
                   </div>
                 </div>
+
               </div>
               <h3 class="text-lg font-semibold mb-2"><?= htmlspecialchars($post['title']) ?></h3>
               <p class="text-gray-600 mb-3 text-sm"><?= htmlspecialchars($post['content']) ?></p>
               <div class="flex flex-wrap gap-1 mb-3">
               </div>
+
+
               <div class="flex items-center justify-between pt-3 border-t border-gray-100">
                 <div class="flex items-center space-x-5">
                   <button class="like-btn text-gray-400 hover:text-red-500 transition-colors flex items-center text-sm" data-post-id="<?= $post['id'] ?>">
@@ -483,18 +487,7 @@ $new_posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <label for="post-content" class="block text-sm font-medium text-gray-700 mb-1">内容</label>
             <textarea id="post-content" name="content" rows="5" placeholder="请输入帖子内容" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
           </div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
-            <div class="grid grid-cols-3 gap-2">
-              <button type="button" class="category-btn px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-primary hover:text-primary" data-category="学习交流">学习交流</button>
-              <button type="button" class="category-btn px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-primary hover:text-primary" data-category="美食推荐">美食推荐</button>
-              <button type="button" class="category-btn px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-primary hover:text-primary" data-category="实习就业">实习就业</button>
-              <button type="button" class="category-btn px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-primary hover:text-primary" data-category="兴趣爱好">兴趣爱好</button>
-              <button type="button" class="category-btn px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-primary hover:text-primary" data-category="活动通知">活动通知</button>
-              <button type="button" class="category-btn px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-primary hover:text-primary" data-category="失物招领">失物招领</button>
-            </div>
-            <input type="hidden" id="post-category" name="category" value="">
-          </div>
+
           <div class="mb-4">
             <label class="flex items-center">
               <input type="checkbox" id="is-anonymous" name="is_anonymous" class="rounded border-gray-300 text-primary focus:ring-primary">
@@ -600,17 +593,17 @@ $new_posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
     });
 
     // 表单提交
+    // 表单提交
     const postForm = document.getElementById('post-form');
     postForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
       const title = document.getElementById('post-title').value;
       const content = document.getElementById('post-content').value;
-      const category = document.getElementById('post-category').value;
       const isAnonymous = document.getElementById('is-anonymous').checked;
 
-      if (!title || !content || !category) {
-        alert('请填写完整信息并选择分类');
+      if (!title || !content) {
+        alert('请填写完整信息');
         return;
       }
 
@@ -619,7 +612,7 @@ $new_posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
       submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 发布中...';
       submitBtn.disabled = true;
 
-      // 发送AJAX请求
+      // 发送AJAX请求，去掉 category 字段
       fetch(window.location.href, {
           method: 'POST',
           headers: {
@@ -629,7 +622,6 @@ $new_posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
             action: 'add_post',
             title: title,
             content: content,
-            category: category,
             is_anonymous: isAnonymous ? '1' : '0'
           })
         })
@@ -639,12 +631,6 @@ $new_posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
             alert(data.message);
             closeModalFunc();
             postForm.reset();
-
-            // 清除分类选择状态
-            categoryBtns.forEach(b => {
-              b.classList.remove('bg-primary/10', 'border-primary', 'text-primary');
-              b.classList.add('border-gray-300', 'text-gray-700');
-            });
 
             // 刷新页面或添加新帖子到列表
             location.reload();
@@ -660,7 +646,6 @@ $new_posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
           submitBtn.disabled = false;
         });
     });
-
     // 点赞功能
     document.querySelectorAll('.like-btn').forEach(btn => {
       btn.addEventListener('click', function() {
