@@ -2,6 +2,27 @@
 
 
 require $_SERVER['DOCUMENT_ROOT'] . '/config/config.php';
+// 更新用户信息处理
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
+  try {
+    $stmt = $conn->prepare("UPDATE users SET 
+      username = ?, 
+      student_id = ?, 
+      id_card = ?,
+      is_admin = ?
+      WHERE id = ?");
+    $stmt->execute([
+      $_POST['username'],
+      $_POST['student_id'],
+      $_POST['id_card'],
+      $_POST['is_admin'], // 新增字段
+      $_POST['user_id']
+    ]);
+    $success = "用户信息更新成功";
+  } catch (PDOException $e) {
+    $error = "更新失败: " . $e->getMessage();
+  }
+}
 // 文件导入处理（添加到PHP代码开头）
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['import'])) {
   if (isset($_FILES['excel']) && $_FILES['excel']['error'] == UPLOAD_ERR_OK) {
@@ -286,6 +307,47 @@ $students = $stmt->fetchAll();
       opacity: 1;
       visibility: visible;
     }
+
+    .search-form {
+      transition: all 0.3s ease;
+    }
+
+    .search-form:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    #editOverlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(3px);
+      z-index: 999;
+    }
+
+    #editDialog {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+    }
+
+    #editDialog.show {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
   </style>
 </head>
 
@@ -335,20 +397,22 @@ $students = $stmt->fetchAll();
           <td><?= htmlspecialchars($student['username']) ?></td>
           <td><?= $student['created_at'] ?></td>
           <td>
-            <form method="post" style="display:inline">
-              <input type="hidden" name="user_id" value="<?= $student['id'] ?>">
-              <select name="is_admin" onchange="this.form.submit()">
-                <option value="0" <?= !$student['is_admin'] ? 'selected' : '' ?>>普通用户</option>
-                <option value="1" <?= $student['is_admin'] ? 'selected' : '' ?>>管理员</option>
-              </select>
-            </form>
+            <?= $student['is_admin'] ? '管理员' : '普通用户' ?>
           </td>
+
           <td class="action-buttons">
-            <button onclick="viewPosts(<?= $student['id'] ?>)">查看帖子</button>
+            <button onclick="openEditDialog(
+    <?= $student['id'] ?>, 
+    '<?= $student['username'] ?>', 
+    '<?= $student['student_id'] ?>', 
+    '<?= $student['id_card'] ?>', 
+    <?= $student['is_admin'] ? '1' : '0' ?>  // 修正布尔值转换
+)">修改</button>
             <form method="post" style="display:inline">
               <input type="hidden" name="user_id" value="<?= $student['id'] ?>">
               <button type="submit" name="delete">删除</button>
             </form>
+            <button onclick="viewPosts(<?= $student['id'] ?>)">查看帖子</button>
           </td>
         </tr>
       <?php endforeach; ?>
@@ -365,7 +429,54 @@ $students = $stmt->fetchAll();
       <a href="?page=<?= $i ?>&<?= http_build_query($search) ?>" <?= $active ?>><?= $i ?></a>
     <?php endfor; ?>
   </div>
+  <!-- 编辑用户信息弹窗 -->
+  <div id="editOverlay" onclick="closeEditDialog()"></div>
+  <div id="editDialog">
+    <h3 style="margin-bottom:20px;color:#333;">编辑用户信息</h3>
+    <form id="editForm" onsubmit="return submitEdit()" style="display:grid;gap:15px;">
+      <input type="hidden" id="editUserId">
 
+      <div class="input-group">
+        <label>用户名：</label>
+        <input type="text" id="editUsername" required
+          style="padding:8px;border:1px solid #ddd;border-radius:6px;width:100%">
+      </div>
+
+      <div class="input-group">
+        <label>学号：</label>
+        <input type="text" id="editStudentId" required
+          style="padding:8px;border:1px solid #ddd;border-radius:6px;width:100%">
+      </div>
+
+      <div class="input-group">
+        <label>身份证号：</label>
+        <input type="text" id="editIdCard" required maxlength="18"
+          style="padding:8px;border:1px solid #ddd;border-radius:6px;width:100%">
+      </div>
+
+      <div class="input-group">
+        <label>权限：</label>
+        <div style="display:flex;gap:15px;align-items:center;">
+          <label>
+            <input type="radio" name="editIsAdmin" value="1"> 管理员
+          </label>
+          <label>
+            <input type="radio" name="editIsAdmin" value="0"> 普通用户
+          </label>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button type="submit" style="padding:10px 20px;background:#4CAF50;color:white;border:none;border-radius:6px;cursor:pointer">
+          保存
+        </button>
+        <button type="button" onclick="closeEditDialog()"
+          style="padding:10px 20px;background:#f44336;color:white;border:none;border-radius:6px;cursor:pointer">
+          取消
+        </button>
+      </div>
+    </form>
+  </div>
   <script>
     function viewPosts(userId) {
       window.open(`userPosts.php?user_id=${userId}`, '_blank');
@@ -388,13 +499,77 @@ $students = $stmt->fetchAll();
     // 新增提示自动隐藏
     document.addEventListener('DOMContentLoaded', function() {
       setTimeout(() => {
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(alert => {
-          alert.style.opacity = '0';
-          setTimeout(() => alert.remove(), 1000); // 淡出动画结束后移除元素
-        });
-      }, 10000); // 10秒后开始隐藏
+          const alerts = document.querySelectorAll('.alert');
+          alerts.forEach(alert => {
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 1000); // 淡出动画结束后移除元素
+          });
+        }
+
+        , 10000); // 10秒后开始隐藏
     });
+    // 添加对话框控制函数
+    let isDialogOpen = false;
+
+    function openEditDialog(id, username, studentId, idCard, isAdmin) {
+      if (isDialogOpen) return;
+      const dialog = document.getElementById('editDialog');
+      dialog.style.display = 'block'; // 新增此行
+      document.getElementById('editOverlay').style.display = 'block';
+
+      // 设置初始值
+      document.getElementById('editUserId').value = id;
+      document.getElementById('editUsername').value = username;
+      document.getElementById('editStudentId').value = studentId;
+      document.getElementById('editIdCard').value = idCard;
+      document.querySelector(`input[name="editIsAdmin"][value="${isAdmin}"]`).checked = true;
+
+      // 动画开始
+      setTimeout(() => {
+        dialog.classList.add('show');
+        isDialogOpen = true;
+      }, 10);
+    }
+
+    // 添加提交逻辑
+    function submitEdit() {
+      const formData = new FormData();
+      const isAdmin = document.querySelector('input[name="editIsAdmin"]:checked').value;
+      formData.append('update', true);
+      formData.append('user_id', document.getElementById('editUserId').value);
+      formData.append('username', document.getElementById('editUsername').value);
+      formData.append('student_id', document.getElementById('editStudentId').value);
+      formData.append('id_card', document.getElementById('editIdCard').value);
+      formData.append('is_admin', isAdmin);
+
+
+      fetch(window.location.href, {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => {
+          if (response.ok) {
+            alert('修改成功');
+            location.reload(); // 刷新页面更新数据
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('修改失败');
+        });
+
+      return false;
+    }
+
+    function closeEditDialog() {
+      const dialog = document.getElementById('editDialog');
+      dialog.classList.remove('show');
+      dialog.style.display = 'none'; // 新增此行
+      setTimeout(() => {
+        document.getElementById('editOverlay').style.display = 'none';
+        isDialogOpen = false;
+      }, 300);
+    }
   </script>
 </body>
 
