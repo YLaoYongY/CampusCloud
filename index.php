@@ -11,8 +11,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $student_id = trim($_POST['student_id']);
         $raw_password = $_POST['password'];
         // 新增用户名长度校验
-        if (strlen($username) < 1 || strlen($username) > 7) {
-            $error = "用户名长度需在1-7位之间";
+        if (mb_strlen($username, 'UTF-8') < 1 || mb_strlen($username, 'UTF-8') > 7) {
+            $error = "用户名长度需在1-7个字符之间";
         }
         if (strlen($_POST['id_card']) != 18 || !preg_match('/^\d{17}[\dX]$/i', $_POST['id_card'])) {
             $error = "请输入有效的18位身份证号码";
