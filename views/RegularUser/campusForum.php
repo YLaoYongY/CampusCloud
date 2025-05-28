@@ -318,20 +318,6 @@ $new_posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <i class="fa fa-chevron-down text-xs"></i>
             </div>
           </div>
-          <div class="relative">
-            <select id="category-select" class="appearance-none bg-gray-50 border border-gray-300 text-gray-700 py-2 pl-3 pr-10 rounded-md leading-tight focus:outline-none focus:bg-white focus:border-primary text-sm">
-              <option value="">全部分类</option>
-              <option value="学习交流">学习交流</option>
-              <option value="美食推荐">美食推荐</option>
-              <option value="实习就业">实习就业</option>
-              <option value="兴趣爱好">兴趣爱好</option>
-              <option value="活动通知">活动通知</option>
-              <option value="失物招领">失物招领</option>
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-              <i class="fa fa-chevron-down text-xs"></i>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -349,16 +335,10 @@ $new_posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <p class="text-gray-500 text-xs"><?= date('Y-m-d H:i', strtotime($post['created_at'])) ?></p>
                   </div>
                 </div>
-                <?php if ($post['category']): ?>
-                  <span class="text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded-full"><?= htmlspecialchars($post['category']) ?></span>
-                <?php endif; ?>
               </div>
               <h3 class="text-lg font-semibold mb-2"><?= htmlspecialchars($post['title']) ?></h3>
               <p class="text-gray-600 mb-3 text-sm"><?= htmlspecialchars($post['content']) ?></p>
               <div class="flex flex-wrap gap-1 mb-3">
-                <?php if ($post['category']): ?>
-                  <span class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">#<?= htmlspecialchars($post['category']) ?></span>
-                <?php endif; ?>
               </div>
               <div class="flex items-center justify-between pt-3 border-t border-gray-100">
                 <div class="flex items-center space-x-5">
@@ -567,23 +547,6 @@ $new_posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
       if (e.target === postModal) {
         closeModalFunc();
       }
-    });
-
-    // 分类按钮选择
-    const categoryBtns = document.querySelectorAll('.category-btn');
-    const postCategory = document.getElementById('post-category');
-
-    categoryBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        categoryBtns.forEach(b => {
-          b.classList.remove('bg-primary/10', 'border-primary', 'text-primary');
-          b.classList.add('border-gray-300', 'text-gray-700');
-        });
-        btn.classList.remove('border-gray-300', 'text-gray-700');
-        btn.classList.add('bg-primary/10', 'border-primary', 'text-primary');
-
-        postCategory.value = btn.dataset.category;
-      });
     });
 
     // 返回顶部按钮
@@ -836,20 +799,17 @@ $new_posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
       });
     });
 
-    // 分类和排序筛选
+    // 排序筛选
     const sortSelect = document.getElementById('sort-select');
-    const categorySelect = document.getElementById('category-select');
 
     function applyFilters() {
       const sort = sortSelect.value;
-      const category = categorySelect.value;
 
       // 这里可以添加实际的筛选逻辑
-      alert(`筛选条件：排序=${sort}, 分类=${category}`);
+      alert(`筛选条件：排序=${sort}`);
     }
 
     sortSelect.addEventListener('change', applyFilters);
-    categorySelect.addEventListener('change', applyFilters);
   </script>
 </body>
 
