@@ -69,30 +69,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     // 登录处理
     elseif (isset($_POST['login'])) {
-        if (empty($_POST['password'])) {
+        $account = trim($_POST['username']);
+        $password = $_POST['password'];
+
+        // 双重验证逻辑
+        if (empty($password)) {
             $error = "密码不能为空";
         } else {
-            $account = trim($_POST['username']);
-            $password = $_POST['password'];
-
             $stmt = $conn->prepare("SELECT * FROM users WHERE username = ? OR student_id = ?");
-            $stmt->execute([$account, (int)$account]);
+            $stmt->execute([$account, $account]);  // 移除不必要的类型转换
 
-            if ($stmt->rowCount() >= 1) {
-                $user = $stmt->fetch();
-                // 明文密码比对
+            if ($user = $stmt->fetch()) {
+                // 第一步：验证密码
                 if ($password === $user['raw_password']) {
                     session_start();
                     $_SESSION['user'] = $user['username'];
-                    // 添加管理员身份判断
-                    $_SESSION['is_admin'] = $user['is_admin'];
 
-                    // 修改跳转逻辑
+                    // 第二步：验证管理员状态
                     if ($user['is_admin'] == 1) {
                         header("Location: ./layout/adminFrame.php");
                     } else {
                         header("Location: ./layout/frame.php");
                     }
+                    exit; // 添加exit防止继续执行
                 } else {
                     $error = "密码错误！";
                 }
