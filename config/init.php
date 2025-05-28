@@ -28,7 +28,7 @@ function initializeDatabase()
             raw_password VARCHAR(20),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             is_admin BOOLEAN DEFAULT 0 NOT NULL,
-            id_card VARCHAR(6) NOT NULL
+            id_card VARCHAR(18) UNIQUE NOT NULL
         )");
     $conn->exec("
       CREATE TABLE IF NOT EXISTS posts (

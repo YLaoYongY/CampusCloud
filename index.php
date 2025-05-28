@@ -14,6 +14,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (strlen($username) < 1 || strlen($username) > 7) {
             $error = "用户名长度需在1-7位之间";
         }
+        if (strlen($_POST['id_card']) != 18 || !preg_match('/^\d{17}[\dX]$/i', $_POST['id_card'])) {
+            $error = "请输入有效的18位身份证号码";
+        } else {
+            $stmt = $conn->prepare("SELECT id FROM users WHERE id_card = ?");
+            $stmt->execute([$_POST['id_card']]);
+            if ($stmt->rowCount() > 0) {
+                $error = "该身份证号已被注册";
+            }
+        }
         // 先验证学号格式
         if (!preg_match('/^\d{11}$/', $student_id)) {
             $error = "学号必须是11位数字";
@@ -31,8 +40,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($stmt->rowCount() > 0) {
                 $error = "学号已被注册";
             } else {
-                $stmt = $conn->prepare("INSERT INTO users (username, student_id, raw_password) VALUES (?, ?, ?)");
-                $stmt->execute([$username, $student_id, $raw_password]);
+                $stmt = $conn->prepare("INSERT INTO users 
+                (username, student_id, raw_password, id_card) 
+                VALUES (?, ?, ?, ?)");
+                $stmt->execute([$username, $student_id, $raw_password, $_POST['id_card']]);
                 $success = "注册成功！";
             }
         }
@@ -327,6 +338,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     title="请输入11位数字学号"
                     required>
             </div>
+            <div class="input-group">
+                <input type="text"
+                    name="id_card"
+                    placeholder="身份证号码"
+                    pattern="\d{18}"
+                    title="请输入18位有效身份证号码"
+                    required>
+            </div>
+
             <div class="input-group">
                 <div class="input-group">
                     <input type="password"
